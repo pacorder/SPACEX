@@ -1,0 +1,6 @@
+{
+  "name": "Visualizador de Socios y Ecosistema de SpaceX",
+  "description": "Explorador interactivo del ecosistema de empresas de tecnología, energía y materiales críticos que colaboran y se benefician del superciclo de SpaceX.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
