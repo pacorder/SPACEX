@@ -41,6 +41,28 @@ export default function NetworkGraph({
     return () => observer.disconnect();
   }, []);
 
+  // Handle zooming using the mouse wheel with passive: false to prevent outer viewport scroll
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheelEvent = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomFactor = 0.06;
+      const direction = e.deltaY < 0 ? 1 : -1;
+      setZoom((prevZoom) => {
+        const nextZoom = prevZoom + direction * zoomFactor * prevZoom;
+        // Clamp zoom level between 0.4x and 3.0x
+        return Math.max(0.4, Math.min(3.0, nextZoom));
+      });
+    };
+
+    container.addEventListener('wheel', handleWheelEvent, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', handleWheelEvent);
+    };
+  }, []);
+
   // Recenter views
   const resetZoomPan = () => {
     setZoom(1);
