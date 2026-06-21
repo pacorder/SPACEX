@@ -1,6 +1,6 @@
 import React from 'react';
 import { Company } from '../types';
-import { SPACEX_STATS } from '../data';
+import { SPACEX_STATS, SUPPLIER_RELATIONS } from '../data';
 import * as Icons from 'lucide-react';
 
 interface CompanyDetailCardProps {
@@ -9,56 +9,70 @@ interface CompanyDetailCardProps {
 }
 
 export default function CompanyDetailCard({ company, onClear }: CompanyDetailCardProps) {
-  // If no company is selected, show general SpaceX IPO data sheet
+  // If no company is selected, show an elegant interactive Explorer cockpit guide
   if (!company) {
     return (
       <div className="glass-panel border border-white/5 rounded-3xl p-6 h-full flex flex-col justify-between text-[#fafafa] relative overflow-hidden">
-        {/* Decorative Grid Line style */}
+        {/* Decorative Ambient Radial Gradient */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="space-y-5">
+        <div className="space-y-6">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></div>
-            <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Ecosistema Global</span>
+            <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Centro de Análisis OSINT</span>
           </div>
 
-          <div>
-            <h1 className="font-serif-italic text-4xl mb-1 text-slate-100">
-              SpaceX (SPCX)
+          <div className="space-y-1">
+            <h1 className="font-serif-italic text-3xl text-slate-100">
+              Cockpit de Control
             </h1>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono mt-1">{SPACEX_STATS.listing} · {SPACEX_STATS.launchDate}</p>
+            <p className="text-xs text-zinc-400 font-sans">
+              Asistente en tiempo real para el mapeo geoestratégico de capital del superciclo aeroespacial.
+            </p>
           </div>
 
-          <p className="text-xs text-zinc-400 leading-relaxed font-sans">
-            {SPACEX_STATS.headline} El superciclo aeroespacial y de Internet global de Starlink cataliza una inmensa red de suministro tecnológico de hardware, energía, chips y minerales críticos de vanguardia.
-          </p>
+          {/* Quick instructions with high fidelity icons */}
+          <div className="space-y-4 pt-1">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Icons.MousePointer className="w-4 h-4 text-blue-400" />
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-mono text-zinc-300 font-semibold block uppercase">1. Selección Interactiva</span>
+                <span className="text-[11px] text-zinc-400 block font-sans">Haz clic en cualquier nodo orbital del gráfico (por ej., <strong className="text-zinc-300 hover:text-white">TSA</strong> o <strong className="text-zinc-300 hover:text-white">ALB</strong>) para desplegar su ficha técnica y ponderaciones de riesgo.</span>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            <div className="bg-zinc-900/50 p-3 rounded-2xl border border-white/5">
-              <span className="text-[9px] text-zinc-500 font-mono block uppercase tracking-wider">Valoración</span>
-              <span className="text-lg font-bold font-display text-blue-400">{SPACEX_STATS.valuation}</span>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Icons.Filter className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-mono text-zinc-300 font-semibold block uppercase">2. Filtro de Sectores</span>
+                <span className="text-[11px] text-zinc-400 block font-sans">Usa la barra inferior para aislar subsectores como <strong className="text-emerald-400">Microchips</strong>, <strong className="text-emerald-400">Energía Espacial</strong> o <strong className="text-emerald-400">Minerales Críticos</strong>.</span>
+              </div>
             </div>
-            <div className="bg-zinc-900/50 p-3 rounded-2xl border border-white/5">
-              <span className="text-[9px] text-zinc-500 font-mono block uppercase tracking-wider">Recaudación</span>
-              <span className="text-lg font-bold font-display text-emerald-400">{SPACEX_STATS.ipoRevenue}</span>
-            </div>
-          </div>
 
-          <div className="bg-zinc-900/50 p-3.5 rounded-2xl border border-white/5">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-[9px] text-zinc-500 font-mono uppercase tracking-wider">Potencial de Mercado (TAM)</span>
-              <span className="text-[8px] bg-purple-500/10 text-purple-400 border border-purple-950 font-mono px-1.5 py-0.5 rounded">IA Espacial</span>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Icons.Sliders className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-mono text-zinc-300 font-semibold block uppercase">3. Simulador de Portafolio</span>
+                <span className="text-[11px] text-zinc-400 block font-sans">Pestaña "Simulador" permite construir hipotéticas carteras asignando presupuesto de $10,000 USD y estimar rendimientos promedio YTD.</span>
+              </div>
             </div>
-            <span className="text-xl font-bold font-display text-purple-400">{SPACEX_STATS.tam}</span>
-            <p className="text-[10px] text-zinc-400 mt-1">Con más del 90% enfocado en infraestructura e inteligencia artificial empresarial en el espacio.</p>
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-white/5 space-y-2">
-          <h4 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">El Efecto SpaceX</h4>
-          <p className="text-[11px] text-zinc-400 leading-relaxed">
-            Similar a la revolución de Nvidia en IA, la cotización formal de SpaceX en los mercados internacionales impulsa un superciclo que eleva la valoración relativa de todos sus socios críticos.
-          </p>
+        {/* Dynamic Status bar inside page margins inside the Cockpit card container */}
+        <div className="ring-1 ring-white/5 bg-zinc-900/40 p-4 rounded-2xl flex flex-col gap-1">
+          <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest block font-bold">Estado de la Red</span>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot" />
+            <span className="font-mono text-[9px] text-emerald-400 font-semibold uppercase">Explorador Listo · Seleccione un Nodo</span>
+          </div>
         </div>
       </div>
     );
@@ -127,6 +141,39 @@ export default function CompanyDetailCard({ company, onClear }: CompanyDetailCar
             <span className="text-xs font-semibold text-zinc-100">{company.role}</span>
           </div>
         </div>
+
+        {/* B2B Ecosystem Connections Section */}
+        {(() => {
+          const inwardConnections = SUPPLIER_RELATIONS.filter(r => r.toId === company.id);
+          const outwardConnections = SUPPLIER_RELATIONS.filter(r => r.fromId === company.id);
+
+          if (inwardConnections.length === 0 && outwardConnections.length === 0) return null;
+
+          return (
+            <div className="bg-zinc-950/40 p-3 rounded-2xl border border-white/5 space-y-2">
+              <div className="flex items-center gap-1.5 border-b border-white/5 pb-1.5">
+                <Icons.Share2 className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-[0.1em]">Conexiones B2B del Ecosistema</span>
+              </div>
+              <div className="space-y-2 font-sans max-h-[140px] overflow-y-auto pr-1">
+                {inwardConnections.map((conn, idx) => (
+                  <div key={`in-${idx}`} className="text-[11px] leading-snug text-zinc-300 bg-zinc-900/30 p-1.5 rounded-lg border border-white/5">
+                    <span className="font-mono text-[8px] font-bold text-amber-400 uppercase bg-amber-500/10 px-1.5 py-0.5 rounded mr-1">Insumo</span>
+                    Se abastece de la red de <span className="font-mono font-bold text-amber-500">{conn.fromId.toUpperCase()}</span>.
+                    <p className="text-[10px] text-zinc-500 mt-0.5">{conn.description}</p>
+                  </div>
+                ))}
+                {outwardConnections.map((conn, idx) => (
+                  <div key={`out-${idx}`} className="text-[11px] leading-snug text-zinc-300 bg-zinc-900/30 p-1.5 rounded-lg border border-white/5">
+                    <span className="font-mono text-[8px] font-bold text-blue-400 uppercase bg-blue-500/10 px-1.5 py-0.5 rounded mr-1">Suministro</span>
+                    Vende recursos clave a <span className="font-mono font-bold text-blue-400">{conn.toId.toUpperCase()}</span>.
+                    <p className="text-[10px] text-zinc-500 mt-0.5">{conn.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Descriptive details */}
         <div className="space-y-1.5">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Company, Sector } from '../types';
-import { COMPANIES, SECTORS } from '../data';
+import { COMPANIES, SECTORS, SUPPLIER_RELATIONS } from '../data';
 import * as Icons from 'lucide-react';
 
 interface NetworkGraphProps {
@@ -24,6 +24,7 @@ export default function NetworkGraph({
   const [zoom, setZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [showB2BRelations, setShowB2BRelations] = useState(true);
 
   // Handle resizing of the container securely
   useEffect(() => {
@@ -46,9 +47,43 @@ export default function NetworkGraph({
     setPan({ x: 0, y: 0 });
   };
 
+  // Helper to get raw numeric value for market cap in billions of USD
+  const getCompanyMarketCapValue = (capStr: string): number => {
+    if (!capStr) return 1.0;
+    const str = capStr.toUpperCase();
+    if (str.includes('T')) {
+      const num = parseFloat(str.replace(/[^0-9.]/g, ''));
+      return num * 1000; // 1T = 1000B
+    }
+    if (str.includes('B')) {
+      const num = parseFloat(str.replace(/[^0-9.]/g, ''));
+      return num;
+    }
+    if (str.includes('M')) {
+      const num = parseFloat(str.replace(/[^0-9.]/g, ''));
+      return num / 1000; // 1M = 0.001B
+    }
+    return 1.5; // Default for funds
+  };
+
+  // Compute logarithmic circle node radius based on Market Cap (range: 6.5px to 20px)
+  const getRadiusForMarketCap = (capStr: string): number => {
+    const capValue = getCompanyMarketCapValue(capStr);
+    const calculated = Math.log2(capValue + 1.2) * 1.8 + 6;
+    return Math.max(6.5, Math.min(20, calculated));
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).tagName === 'circle' || (e.target as HTMLElement).closest('.btn-interactive')) {
-      return; // don't drag if interacting with buttons or nodes
+    const target = e.target as HTMLElement;
+    const isInteractive = 
+      target.tagName === 'circle' || 
+      target.tagName === 'text' || 
+      target.tagName === 'path' || 
+      target.closest('.btn-interactive') ||
+      target.closest('button');
+      
+    if (isInteractive) {
+      return; // don't drag if interacting with buttons, nodes, text labels, or conduits
     }
     setIsDragging(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
@@ -167,6 +202,19 @@ export default function NetworkGraph({
         >
           <Icons.Compass className="w-4 h-4" />
           <span>Centrar</span>
+        </button>
+
+        <button 
+          onClick={() => setShowB2BRelations(prev => !prev)}
+          className={`btn-interactive px-3.5 h-9 flex items-center gap-2 rounded-xl border text-xs font-mono transition ${
+            showB2BRelations 
+              ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-bold' 
+              : 'bg-zinc-900 border-white/5 text-zinc-400 hover:text-zinc-200'
+          }`}
+          title="Alternar conexiones entre proveedores (B2B)"
+        >
+          <Icons.Share2 className="w-4 h-4" />
+          <span>Suministro B2B: {showB2BRelations ? 'ON' : 'OFF'}</span>
         </button>
       </div>
 
@@ -299,6 +347,78 @@ export default function NetworkGraph({
           );
         })}
 
+        {/* INTERCOMPANY B2B SUPPLY-CHAIN CONNECTIONS */}
+        {showB2BRelations && SUPPLIER_RELATIONS.map((rel, idx) => {
+          const pFrom = companyPositions[rel.fromId];
+          const pTo = companyPositions[rel.toId];
+          if (!pFrom || !pTo) return null;
+
+          const isHighlighted = 
+            selectedCompanyId === rel.fromId || 
+            selectedCompanyId === rel.toId ||
+            hoveredNode === rel.fromId || 
+            hoveredNode === rel.toId;
+
+          const isAnyActive = !!selectedCompanyId || !!hoveredNode;
+          const isDimmed = isAnyActive && !isHighlighted;
+
+          // Compute a curved Bezier offset
+          const midX = (pFrom.x + pTo.x) / 2;
+          const midY = (pFrom.y + pTo.y) / 2;
+          const dx = pTo.x - pFrom.x;
+          const dy = pTo.y - pFrom.y;
+          
+          // Bend the lines elegantly based on relative offsets
+          const percent = 0.16;
+          const ctrlX = midX - dy * percent;
+          const ctrlY = midY + dx * percent;
+
+          return (
+            <g 
+              key={`b2b-link-${idx}`} 
+              className="transition-opacity duration-300"
+              style={{ opacity: isDimmed ? 0.04 : isHighlighted ? 1.0 : 0.35 }}
+            >
+              {/* Visual curve track B2B */}
+              <path
+                d={`M ${pFrom.x} ${pFrom.y} Q ${ctrlX} ${ctrlY} ${pTo.x} ${pTo.y}`}
+                fill="none"
+                stroke={isHighlighted ? '#fbbf24' : 'rgba(245, 158, 11, 0.4)'}
+                strokeWidth={isHighlighted ? 2.2 : 1.2}
+                strokeDasharray={isHighlighted ? '0' : '4 3'}
+              />
+
+              {/* Animated high-fidelity glowing flows along curves */}
+              {isHighlighted && (
+                <path
+                  d={`M ${pFrom.x} ${pFrom.y} Q ${ctrlX} ${ctrlY} ${pTo.x} ${pTo.y}`}
+                  fill="none"
+                  stroke="#fbbf24"
+                  strokeWidth="2.2"
+                  strokeDasharray="6 12"
+                  className="flow-active"
+                />
+              )}
+
+              {/* Dynamic supply value info/label overlay popup and positioning */}
+              {isHighlighted && (
+                <foreignObject
+                  x={ctrlX - 65}
+                  y={ctrlY - 14}
+                  width="130"
+                  height="34"
+                  className="overflow-visible pointer-events-none select-none"
+                >
+                  <div className="bg-zinc-950/95 border border-amber-500/50 text-[8.5px] font-mono text-amber-400 px-2 py-0.5 rounded shadow-[0_0_12px_rgba(245,158,11,0.2)] text-center leading-tight backdrop-blur">
+                    <span className="font-bold uppercase block text-[8px] tracking-wider text-amber-500">{rel.type}</span>
+                    <span className="text-zinc-300 block truncate">{rel.description}</span>
+                  </div>
+                </foreignObject>
+              )}
+            </g>
+          );
+        })}
+
         {/* SECTORS NODES (Large Orbiting Spheres) */}
         {SECTORS.map((sector) => {
           const pos = sectorPositions[sector.id];
@@ -335,8 +455,7 @@ export default function NetworkGraph({
                 r={16}
                 fill={`url(#grad-sector-${sector.id})`}
                 filter="url(#glow-node)"
-                className="transition-transform duration-300"
-                style={{ transform: isHovered || isSelected ? 'scale(1.15)' : 'scale(1)' }}
+                className="transition-all duration-300"
               />
 
               {/* Radial gradient per sector element */}
@@ -361,7 +480,7 @@ export default function NetworkGraph({
           );
         })}
 
-        {/* COMPANIES NODES (Small glowing spheres orbiting their sector) */}
+        {/* COMPANIES NODES (Glowing spheres orbiting their sector, sized by market capitalization) */}
         {COMPANIES.map((company) => {
           const pos = companyPositions[company.id];
           const sector = SECTORS.find(s => s.id === company.category);
@@ -375,6 +494,9 @@ export default function NetworkGraph({
           // Priority-based glow color
           const priorityColor = company.priority === 'Alta' ? '#f43f5e' : company.priority === 'Media' ? '#eab308' : '#10b981';
 
+          // Call our new dynamic physical size radius
+          const nodeRadius = getRadiusForMarketCap(company.marketCap);
+
           return (
             <g
               key={`node-comp-${company.id}`}
@@ -384,27 +506,35 @@ export default function NetworkGraph({
               onMouseEnter={() => setHoveredNode(company.id)}
               onMouseLeave={() => setHoveredNode(null)}
             >
+              {/* Invisible touch/click generous hit-area buffer for extremely high precision and easy selection */}
+              <circle
+                cx={pos.x}
+                cy={pos.y}
+                r={Math.max(22, nodeRadius + 12)}
+                fill="transparent"
+                className="cursor-pointer"
+              />
+
               {/* Glowing anchor aura when hovered/selected */}
               <circle
                 cx={pos.x}
                 cy={pos.y}
-                r={15}
+                r={isHovered || isSelected ? nodeRadius + 6 : nodeRadius + 3}
                 fill="none"
                 stroke={priorityColor}
                 strokeWidth="1.5"
-                strokeOpacity={isHovered || isSelected ? '0.75' : '0'}
-                className="transition-all duration-300 transform scale-110"
+                strokeOpacity={isHovered || isSelected ? '0.85' : '0'}
+                className="transition-all duration-300"
               />
 
               {/* Company glow core orb */}
               <circle
                 cx={pos.x}
                 cy={pos.y}
-                r={8}
+                r={nodeRadius}
                 fill={`url(#grad-comp-${company.id})`}
                 filter={isHovered || isSelected ? 'url(#glow-node)' : undefined}
-                className="transition-transform duration-300"
-                style={{ transform: isHovered || isSelected ? 'scale(1.2)' : 'scale(1)' }}
+                className="transition-all duration-300"
               />
 
               <defs>
@@ -415,10 +545,10 @@ export default function NetworkGraph({
                 </radialGradient>
               </defs>
 
-              {/* Short Ticker labels */}
+              {/* Short Ticker labels, placed dynamically relative to node size */}
               <text
                 x={pos.x}
-                y={pos.y + 19}
+                y={pos.y + nodeRadius + 11}
                 textAnchor="middle"
                 className="font-mono text-[9px] font-medium tracking-wide fill-zinc-400 select-none pointer-events-none"
               >

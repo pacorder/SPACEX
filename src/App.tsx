@@ -6,10 +6,11 @@ import CompanyDetailCard from './components/CompanyDetailCard';
 import CompanyTable from './components/CompanyTable';
 import InvestmentSimulator from './components/InvestmentSimulator';
 import MineralsTable from './components/MineralsTable';
+import CapMarketTreemap from './components/CapMarketTreemap';
 import * as Icons from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-type TabId = 'list' | 'simulator' | 'minerals';
+type TabId = 'list' | 'simulator' | 'minerals' | 'treemap';
 
 export default function App() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
@@ -73,7 +74,50 @@ export default function App() {
       </header>
 
       {/* Primary Container layout dashboard */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 flex flex-col gap-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 flex flex-col gap-8">
+        
+        {/* HERO LANDING PAGE INTRO */}
+        <section id="hero-landing-page" className="glass-panel border border-white/5 rounded-3xl p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-12 w-48 h-48 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="max-w-2xl space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500 pulse-dot" />
+              <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Superciclo de Tecnología Aeroespacial</span>
+            </div>
+            
+            <h2 className="font-serif-italic text-4xl lg:text-5xl text-slate-100 leading-tight">
+              SpaceX: El Sol Gravitacional de la Nueva Era
+            </h2>
+            
+            <p className="text-sm text-zinc-400 leading-relaxed font-sans">
+              La histórica salida de <strong className="text-white">SpaceX</strong> a bolsa en el Nasdaq con una valoración de <strong className="text-blue-400">~$1.77 billones de dólares</strong> marca un punto de inflexión civilizatorio. Similar al impacto de Nvidia en el ecosistema de IA, SpaceX actúa como catalizador de un nuevo nicho de inversión que impulsa de forma masiva a proveedores estratégicos de semiconductores, energía limpia, metales complejos y componentes de órbita terrestre.
+            </p>
+          </div>
+
+          {/* Quick Bento Stats Panel */}
+          <div className="w-full md:w-auto flex flex-col gap-3 min-w-[280px]">
+            <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5 flex justify-between items-center">
+              <div>
+                <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider block">VALORACIÓN OPI</span>
+                <span className="text-2xl font-bold font-display text-blue-400">{SPACEX_STATS.valuation}</span>
+              </div>
+              <div className="w-px h-10 bg-white/5" />
+              <div>
+                <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider block text-right">RECAUDACIÓN</span>
+                <span className="text-2xl font-bold font-display text-emerald-400 text-right">{SPACEX_STATS.ipoRevenue}</span>
+              </div>
+            </div>
+            <div className="bg-zinc-900/50 p-3.5 rounded-2xl border border-white/5">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">Mercado Potencial (TAM)</span>
+                <span className="text-[8px] bg-purple-500/10 text-purple-400 border border-purple-950 font-mono px-1.5 py-0.5 rounded uppercase">IA e Infraestructura</span>
+              </div>
+              <span className="text-2xl font-bold font-display text-purple-400">{SPACEX_STATS.tam}</span>
+            </div>
+          </div>
+        </section>
         
         {/* Top interactive panel / Bento Grid section */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px] lg:h-[620px] min-h-[500px]">
@@ -132,6 +176,18 @@ export default function App() {
               <Icons.Pickaxe className="w-4 h-4" />
               <span>Minerales & Commodities</span>
             </button>
+            <button
+              onClick={() => setActiveTab('treemap')}
+              className={`px-5 py-2.5 text-xs font-display font-semibold uppercase tracking-wider border-b-2 transition duration-200 flex items-center gap-2 ${
+                activeTab === 'treemap'
+                  ? 'border-blue-500 text-blue-400 font-bold'
+                  : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              }`}
+              title="Treemap de Capitalización"
+            >
+              <Icons.LayoutDashboard className="w-4 h-4 rotate-45" />
+              <span>Mapa de Capitalización</span>
+            </button>
           </div>
 
           {/* Tab view area */}
@@ -181,6 +237,23 @@ export default function App() {
                   className="h-full"
                 >
                   <MineralsTable />
+                </motion.div>
+              )}
+
+              {activeTab === 'treemap' && (
+                <motion.div
+                  key="treemap"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="h-full"
+                >
+                  <CapMarketTreemap
+                    companies={COMPANIES}
+                    onSelectCompany={handleSelectCompany}
+                    selectedCompanyId={selectedCompany ? selectedCompany.id : null}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

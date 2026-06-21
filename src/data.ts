@@ -304,6 +304,25 @@ export const COMPANIES: Company[] = [
   }
 ];
 
+export interface SupplierRelation {
+  fromId: string;
+  toId: string;
+  type: string;
+  description: string;
+}
+
+export const SUPPLIER_RELATIONS: SupplierRelation[] = [
+  { fromId: 'nb', toId: 'mtrn', type: 'Suministro', description: 'NioCorp suministra niobio crudo a Materion para refinación de súper-aleaciones' },
+  { fromId: 'ipx', toId: 'hwm', type: 'Suministro', description: 'IperionX procesa titanio circular purificado doméstico para las forjas de Howmet' },
+  { fromId: 'stm', toId: 'sats', type: 'Tecnológico', description: 'STMicroelectronics produce los componentes de transceptores integrados de EchoStar' },
+  { fromId: 'ftc', toId: 'rklb', type: 'Tecnológico', description: 'Filtronic fabrica módulos de radiofrecuencia de alta frecuencia para los satélites de Rocket Lab' },
+  { fromId: 'ceg', toId: 'vst', type: 'Red Eléctrica', description: 'Constellation provee respaldo de energía limpia de carga base continua a las redes de Vistra' },
+  { fromId: 'nee', toId: 'vst', type: 'Red Eléctrica', description: 'NextEra y Vistra co-desarrollan almacenamiento masivo de baterías e infraestructura solar' },
+  { fromId: 'hwm', toId: 'rklb', type: 'Infraestructura', description: 'Howmet moldea carcasas térmicas y de titanio forjado ligero para los cohetes de Rocket Lab' },
+  { fromId: 'rdw', toId: 'lunr', type: 'Infraestructura', description: 'Redwire suministra arreglos solares ROC desplegables ultraligeros para Intuitive Machines' },
+  { fromId: 'pl', toId: 'goog', type: 'Datos', description: 'Planet Labs procesa flotas de telemetría e imágenes satelitales en Google Cloud' }
+];
+
 export const SPACEX_STATS = {
   valuation: '$1.77T',
   ipoRevenue: '$75.0B',

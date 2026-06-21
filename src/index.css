@@ -84,4 +84,18 @@
   50% { opacity: .5; }
 }
 
+@keyframes flowLine {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.flow-active {
+  animation: flowLine 1.5s linear infinite;
+}
+
+
 
